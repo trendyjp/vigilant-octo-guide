@@ -2,3 +2,7 @@ crewai
 duckduckgo-search
 huggingface_hub
 langchain_google_genai
+streamlit 
+google-generativeai 
+langchain 
+sentence-transformers 
