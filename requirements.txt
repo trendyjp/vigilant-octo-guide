@@ -8,3 +8,5 @@ langchain
 sentence-transformers 
 pysqlite3-binary
 langchain-community
+crewai-tools 
+pydantic 
