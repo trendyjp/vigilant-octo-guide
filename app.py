@@ -6,7 +6,7 @@ import streamlit as st
 import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from crewai import Agent, Task, Crew, Process
-from langchain.tools import DuckDuckGoSearchRun
+from langchain_community.tools import DuckDuckGoSearchRun
 # Required for ChatGoogleGenerativeAI
 import google.generativeai as genai
 
