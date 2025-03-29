@@ -6,13 +6,13 @@ import streamlit as st
 import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from crewai import Agent, Task, Crew, Process
-# Corrected import path for the tool
-from langchain_community.tools import DuckDuckGoSearchRun
+# Import the tool from crewai_tools
+from crewai_tools import DuckDuckGoSearchRunTool
 # Required for ChatGoogleGenerativeAI
 import google.generativeai as genai
+import traceback # Import traceback for detailed error logging
 
 # --- Streamlit UI Configuration ---
-# [Rest of your Streamlit UI setup remains the same]
 st.set_page_config(page_title="CrewAI Email Generator (Gemini)", layout="wide")
 st.title("🚀 CrewAI Cold Email Generator (using Google Gemini)")
 st.markdown("""
@@ -53,10 +53,13 @@ if generate_button:
                 google_api_key=google_api_key
             )
 
-            # Initialize Tools (using the correct import)
-            tool_search = DuckDuckGoSearchRun() # Instance creation is fine
+            # Initialize Tools using crewai_tools
+            st.write("Initializing DuckDuckGoSearchRunTool...") # Debug print
+            tool_search = DuckDuckGoSearchRunTool()
+            st.write("Tool initialized successfully.") # Debug print
 
             # Define Agents
+            st.write("Defining Agents...") # Debug print
             email_author = Agent(
                 role='Professional Email Author',
                 goal='Craft concise and engaging emails based on the task description',
@@ -64,7 +67,7 @@ if generate_button:
                 verbose=True,
                 allow_delegation=False,
                 llm=llm,
-                tools=[tool_search] # Pass the instance here
+                tools=[tool_search] # Pass the instance from crewai_tools
             )
             marketing_strategist = Agent(
                 role='Marketing Strategist',
@@ -73,7 +76,6 @@ if generate_button:
                 verbose=True,
                 allow_delegation=True,
                 llm=llm
-                # Note: Marketing strategist doesn't necessarily need the search tool directly if delegating tasks requiring it
             )
             content_specialist = Agent(
                 role='Content Specialist',
@@ -83,26 +85,33 @@ if generate_button:
                 allow_delegation=False,
                 llm=llm
             )
+            st.write("Agents defined.") # Debug print
 
             # Define Task
+            st.write("Defining Task...") # Debug print
             email_task = Task(
                 description=task_description,
                 agent=marketing_strategist,
                 expected_output="Two final, polished versions of the cold email, ready for sending. Each version should be clearly distinct."
             )
+            st.write("Task defined.") # Debug print
 
             # Create the Crew
+            st.write("Creating Crew...") # Debug print
             email_crew = Crew(
                 agents=[email_author, marketing_strategist, content_specialist],
                 tasks=[email_task],
                 verbose=True,
                 process=Process.sequential
             )
+            st.write("Crew created.") # Debug print
 
             # Execution Flow
             st.info(f"🚀 Kicking off the email generation crew using {selected_model}...")
             with st.spinner("🤖 Agents are collaborating... Analyzing requirements, drafting, reviewing, and refining emails..."):
+                st.write("Kicking off crew...") # Debug print
                 emails_output = email_crew.kickoff()
+                st.write("Crew kickoff finished.") # Debug print
 
             # Display Results
             st.success("✅ Crew finished generating emails!")
@@ -110,11 +119,11 @@ if generate_button:
             st.markdown(emails_output)
 
         except Exception as e:
-            st.error(f"An error occurred: {e}")
+            st.error(f"An error occurred during CrewAI execution: {e}")
             st.error("Please check your setup: API Key validity, network connection, task description, and library versions.")
-            # Optional: print traceback to console for more detailed debugging
-            import traceback
-            traceback.print_exc()
+            # Print the full traceback to the Streamlit app for detailed debugging
+            st.subheader("Error Traceback:")
+            st.code(traceback.format_exc())
 
 else:
     st.info("Configure your Google API Key and task details in the sidebar, then click 'Generate Emails' to start.")
