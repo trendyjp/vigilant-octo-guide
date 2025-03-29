@@ -6,3 +6,4 @@ streamlit
 google-generativeai 
 langchain 
 sentence-transformers 
+pysqlite3-binary
